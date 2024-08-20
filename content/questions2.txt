@@ -1,0 +1,134 @@
+Where can I learn how to get started with Rutgers Connect?
+What resources are available to help me get started with Rutgers Connect?
+Where can I find instructions on how to use Rutgers Connect?
+Is there a guide available to help me learn about Rutgers Connect?
+What steps should I take to begin using Rutgers Connect?
+How do I access training materials for Rutgers Connect?
+How can I set up Outlook email or another email application for Rutgers Connect?
+What are the steps to configure Outlook or another email application for Rutgers Connect?
+How do I access my Rutgers Connect email through Outlook or a different email client?
+What settings do I need to enter to use Outlook or another email program with Rutgers Connect?
+Is there a guide available for setting up Rutgers Connect with Outlook or alternative email clients?
+Can you provide instructions on how to configure Outlook or a different email application for Rutgers Connect?
+How do I access my ScarletMail account and all the ScarletApps services?
+What are the steps to log into my ScarletMail account and use the ScarletApps services?
+How can I access my ScarletMail email and the other tools included in ScarletApps?
+What is the process for accessing my Rutgers email and the associated ScarletApps services?
+Where can I find instructions for logging into ScarletMail and utilizing the various ScarletApps tools?
+Is there a guide available on how to access my ScarletMail account and all the features of ScarletApps?
+How can I forward my ScarletMail mail to my non-Rutgers email account?
+What are the steps to automatically send my ScarletMail messages to my personal email account?
+How can I set up email forwarding from ScarletMail to my non-Rutgers email address?
+Is it possible to have my ScarletMail emails redirected to my external email account?
+What options are available for forwarding emails from my ScarletMail account to a different email provider?
+Can you provide instructions on how to configure email forwarding from ScarletMail to my non-Rutgers email address?
+Can my ScarletMail account use my name, not my NetID?
+Is it possible to personalize my ScarletMail address to use my name instead of my NetID?
+How can I change my ScarletMail address to reflect my name rather than my NetID?
+Can I create an email alias for my ScarletMail account that uses my name?
+What are the options for customizing my ScarletMail address to display my name?
+Is there a way to set up a personalized email address for ScarletMail that doesn't include my NetID?
+What if a student already has a personal Gmail account?
+If a student has an existing personal Gmail account, can they still use ScarletMail?
+How does having a personal Gmail account affect a student's use of ScarletMail?
+What are the options for students who already have a personal Gmail account and want to use ScarletMail?
+Are there any conflicts or issues that arise when a student uses both a personal Gmail account and ScarletMail?
+Can a student with an existing Gmail account integrate or link it with their ScarletMail account?
+What email options do students have?
+What different email services are available to students?
+Can students choose between different email providers or are they limited to one option?
+What are the features and benefits of the various email options offered to students?
+Are there any restrictions or limitations on the email services that students can use?
+Can students use their personal email accounts for academic purposes, or is there a requirement to use a university-provided email address?
+How can I organize the emails in ScarletMail?
+What tools or features are available in ScarletMail for organizing emails?
+How can I create folders or labels to categorize my emails in ScarletMail?
+Is there a way to filter or sort my emails in ScarletMail based on specific criteria?
+What strategies can I use to manage the large volume of emails I receive in ScarletMail?
+Can you provide tips on how to effectively organize and prioritize emails within ScarletMail?
+I deleted my message. Can it be retrieved?
+Is it possible to recover a deleted message in ScarletMail?
+Are there any options for retrieving accidentally deleted emails in ScarletMail?
+What steps can I take to restore a message that I mistakenly deleted in ScarletMail?
+Does ScarletMail have a trash or deleted items folder where I can find my deleted message?
+Is there a way to undo the deletion of an email in ScarletMail?
+What is my ScarletMail email address?
+Can an RBHS affiliate obtain a ScarletMail?
+Is it possible for RBHS affiliates to get a ScarletMail account?
+Are ScarletMail accounts available to individuals affiliated with RBHS?
+Can someone associated with RBHS acquire a ScarletMail address?
+What are the eligibility requirements for RBHS affiliates to obtain a ScarletMail account?
+Does RBHS affiliation grant access to a ScarletMail account?
+How do I configure my mail client for ScarletMail?
+What are the steps to set up my email client to access ScarletMail?
+How can I configure my email program to send and receive ScarletMail messages?
+What settings do I need to enter in my mail client to use it with ScarletMail?
+Is there a guide available for configuring various email clients for ScarletMail?
+Can you provide instructions on how to set up my preferred email application for ScarletMail?
+What is the Maximum Attachment Size in ScarletMail?
+How large of an attachment can I send via ScarletMail?
+What is the file size limit for attachments in ScarletMail?
+Is there a maximum size restriction for files attached to ScarletMail emails?
+What are the constraints on sending large files through ScarletMail?
+Can you specify the largest file size that can be included in a ScarletMail email?
+How do I send email with ScarletMail using my email alias?
+What are the steps to send emails from ScarletMail using my personalized email address (alias)?
+How can I configure ScarletMail to send outgoing emails from my preferred name instead of my NetID?
+Is it possible to send emails using my "firstname.lastname@rutgers.edu" address through ScarletMail?
+What settings do I need to adjust in ScarletMail to send messages from my email alias?
+Can you provide instructions on how to use my personalized Rutgers email address when sending emails through ScarletMail?
+Can I sign into my ScarletMail and personal Gmail account at the same time?
+Is it possible to access both my ScarletMail and personal Gmail accounts simultaneously?
+Can I be logged into ScarletMail and my personal Gmail account in the same browser?
+What are the options for using both ScarletMail and my personal Gmail account concurrently?
+Are there any limitations or conflicts when accessing ScarletMail and a personal Gmail account at the same time?
+How can I manage multiple email accounts, including ScarletMail and my personal Gmail, without having to constantly log in and out?
+How long can I keep my ScarletMail account after I leave Rutgers?
+What happens to my ScarletMail account after I am no longer affiliated with Rutgers?
+Is there a grace period for accessing ScarletMail after leaving Rutgers?
+Does Rutgers deactivate ScarletMail accounts for former students/employees immediately?
+How long can I continue using my ScarletMail email address after my association with Rutgers ends?
+What is the policy regarding ScarletMail account retention for individuals who are no longer part of the Rutgers community?
+Can I change the display name on my ScarletMail?
+Is it possible to modify the name that appears when I send emails from ScarletMail?
+How can I personalize the sender name associated with my ScarletMail account?
+What steps are involved in updating the display name for my ScarletMail emails?
+Can I choose a different name to show up as the sender in my ScarletMail messages?
+Is there an option to customize the name displayed in the "From" field of my ScarletMail emails?
+Can I request my ScarletMail account be removed?
+Is it possible to delete my ScarletMail account?
+What steps are involved in requesting the removal of my ScarletMail account?
+How can I initiate the process of deactivating my ScarletMail account?
+Does Rutgers have a procedure for removing ScarletMail accounts upon request?
+Is there a way to permanently delete my ScarletMail account and associated data?
+How do I connect to RUWireless Secure?
+What are the steps involved in connecting to the RUWireless Secure network?
+How can I set up my device to access the RUWireless Secure Wi-Fi?
+What is the process for joining the RUWireless Secure network on my computer or mobile device?
+Is there a guide available for configuring my device to connect to RUWireless Secure?
+Can you provide instructions on how to establish a connection to the RUWireless Secure wireless network?
+Why use RUWireless Secure?
+What are the advantages of connecting to RUWireless Secure?
+How does RUWireless Secure enhance my online experience at Rutgers?
+What benefits does RUWireless Secure offer over other Wi-Fi networks on campus?
+Why is RUWireless Secure the recommended network for Rutgers students, faculty, and staff?
+What security features does RUWireless Secure provide to protect my data and online activities?
+How do I configure myself for RUWireless Secure?
+What steps should I take to set up my device for RUWireless Secure?
+How can I configure my computer or mobile device to connect to RUWireless Secure?
+What are the necessary settings to enable 
+RUWireless Secure on my device?
+Is there a guide available for configuring my device to access RUWireless Secure?
+Can you provide instructions on how to prepare my device for connecting to the RUWireless Secure network?
+How do I print on my campus?
+Where can I find printers on campus and how do I use them?
+What are the steps to print documents from my personal device at Rutgers?
+Is there a specific printing process for students, faculty, and staff on campus?
+What resources are available to help me navigate printing services at Rutgers?
+Can I print from any computer lab on campus, or are there designated printing locations?
+How can I download Microsoft Office for free?
+Is there a way to get Microsoft Office without paying?
+Are there any free versions of Microsoft Office available for download?
+What are the options for accessing Microsoft Office applications at no cost?
+How can I obtain a free license for Microsoft Office software?
+Is it possible to legally download and use Microsoft Office without purchasing a subscription?
