@@ -23,9 +23,6 @@ from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import OpenAIEmbeddings
 from langchain.retrievers import EnsembleRetriever
-from langchain.prompts import ChatPromptTemplate
-from langchain.chains import LLMChain, SimpleSequentialChain
-from langchain_anthropic import ChatAnthropic
 from imap_tools import MailBox
 from dotenv import load_dotenv
 
@@ -44,7 +41,8 @@ def route_to_chain_two(route_name):
 os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_KEY")
 os.environ["COHERE_API_KEY"] = os.getenv("COHERE_KEY")
 os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_AI_KEY")
-# """Load Data"""
+
+# LOAD DATA
 
 df = pd.read_csv("./content/context.csv")
 loader = DataFrameLoader(df, page_content_column="data")
@@ -52,7 +50,7 @@ docs = loader.load()
 
 embedding = OpenAIEmbeddings()
 
-# """Split sentences"""
+# SPLIT SENTENCES
 
 text_splitter = RecursiveCharacterTextSplitter(
     chunk_size=1000, chunk_overlap=200, add_start_index=True
@@ -83,13 +81,13 @@ table = db.create_table(
 docsearch = LanceDB.from_texts(ALL_TEXT, embedding, connection=db)
 retriever_lancedb = docsearch.as_retriever(search_kwargs={"k": 3})
 
-# """Generate embeddings for the data"""
+# GENERATE EMBEDDINGS
 
 retriever = EnsembleRetriever(
     retrievers=[bm25_retriever, retriever_lancedb], weights=[0.4, 0.6]
 )
 
-# """## Gemini"""
+# GEMINI
 
 llm = ChatGoogleGenerativeAI(model="gemini-pro")
 
@@ -127,20 +125,8 @@ TEMPLATE_THREE = """
 """
 
 prompt_one = PromptTemplate.from_template(TEMPLATE)
-# chain_one = LLMChain(llm=llm, prompt=prompt_one)
-
 prompt_two = PromptTemplate(input_variables=["query", "context"], template=TEMPLATE_TWO)
-
 prompt_three = PromptTemplate(input_variables=["query", "context"], template=TEMPLATE_THREE)
-# chain_two = LLMChain(llm=llm, prompt=prompt_two)
-
-
-# first_prompt = ChatPromptTemplate.from_template("Is a question being asked? QUERY:{query}")
-# chain_one = LLMChain(llm=llm, prompt=first_prompt)
-# second_prompt = ChatPromptTemplate.from_template("Answer the question if the question is answerable with the given context. CONTEXT:{context}")
-# chain_two = LLMChain(llm=llm, prompt=second_prompt)
-
-# overall_simple_chain = SimpleSequentialChain(chains=[chain_one, chain_two], verbose=True)
 
 def format_docs(documents):
     """Formats documents."""
@@ -151,14 +137,12 @@ select_chain = (
     | llm
     | StrOutputParser()
 )
-
 answer_chain_from_docs = (
     RunnablePassthrough.assign(context=(lambda x: format_docs(x["context"])))
     | prompt_two
     | llm
     | StrOutputParser() 
 )
-
 rag_chain_from_docs = (
     RunnablePassthrough.assign(context=(lambda x: format_docs(x["context"])))
     | prompt_three
