@@ -8,6 +8,9 @@
 #!pip install -q langchain langchain_cohere langchain_google_genai chromadb langchainhub langchain_community huggingface_hub langchain_openai lancedb openai tiktoken rank_bm25 pypdf
 
 import os
+import imaplib
+import os
+import ssl
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -29,12 +32,12 @@ from dotenv import load_dotenv
 load_dotenv() 
 
 def route_to_chain(route_name):
-    if "question" == route_name.lower():
+    if "no questions" != route_name.lower():
         return answer_chain
     return "No"
 
 def route_to_chain_two(route_name):
-    if "answerable with context" == route_name.lower():
+    if "not answerable with context" != route_name.lower():
         return question_chain
     return "No"
     
@@ -92,18 +95,19 @@ retriever = EnsembleRetriever(
 llm = ChatGoogleGenerativeAI(model="gemini-pro")
 
 TEMPLATE = """
-  Given the query below, classify it as a 'question', or 'not a question'.
+  Given the input below, return a list of questions that are being asked. If there are no questions being asked, classify it as 'no questions'.
 
-  QUERY:
+  INPUT:
   {query}
 
   Classification:
   """
 
 TEMPLATE_TWO = """
-  Given the query below, classify it as 'answerable with context', or 'not answerable with context'.
+  Given the input below, return a list of questions that are answerable with the context provided. If there are not questions
+  that can be answered with the given context, classify it as 'not answerable with context'.
 
-  QUERY:
+  INPUT:
   {query}
 
   CONTEXT:
@@ -113,9 +117,9 @@ TEMPLATE_TWO = """
   """
 
 TEMPLATE_THREE = """
-  Answer the question with the given context
+  Respond with the questions that are being asked in the input, and answer them with the given context
 
-  QUESTION:
+  INPUT:
   {query}
 
   CONTEXT:
@@ -158,41 +162,65 @@ question_chain = RunnableParallel(
     {"context": retriever, "query": RunnablePassthrough()}
 ).assign(answer=rag_chain_from_docs)
 
+# SINGLE TEST
+
+# MSG = """Hello Badri Nath! I hope you had a great summer! So anyways, I intend to apply to the Rutger’s MSCS program, and therefore I have a bunch of questions I wish to ask. To start off, what are the amount of credits required to graduate from the MSCS program? Is GRE optional in order to apply? What are the required materials for the application?"""
+
+# route_one = select_chain.invoke(MSG)
+# print(route_one)
+# chain_one = route_to_chain(route_one)
+# if chain_one == "No":
+#     print("No questions.")
+# else:
+#     print("At least one question.")
+#     route_two = answer_chain.invoke(MSG)
+#     chain_two = route_to_chain_two(route_two['answer'])
+#     if chain_two == "No":
+#         print("Not answerable with context.")
+#     else:
+#         print("Answerable with context.")
+#         print(question_chain.invoke(MSG)['answer'])
+
 # CONNECT
 
-SMTP_SERVER = 'smtp.gmail.com'
-PORT = 587
-server = smtplib.SMTP(SMTP_SERVER, PORT)
+smtp_server = 'mx.farside.rutgers.edu'
+port = 25
+server = smtplib.SMTP(smtp_server, port)
 server.starttls()
-# Login to the server
-server.login(os.getenv("EMAIL"), os.getenv("PASS"))
 
 # MAIL - Credit to stackoverflow user https://stackoverflow.com/questions/5632713/getting-n-most-recent-emails-using-imap-and-python
 
-with MailBox('imap.gmail.com').login(os.getenv("EMAIL"), os.getenv("PASS"), 'INBOX') as mailbox:
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+context.set_ciphers('DEFAULT@SECLEVEL=1')
+with MailBox('rci.rutgers.edu', ssl_context=context).login(os.getenv("EMAIL"), os.getenv("PASS"), 'INBOX') as mailbox:
     for msg in mailbox.fetch(limit=1, reverse=True):
-        SENDER_EMAIL = os.getenv("EMAIL")
+        SENDER_EMAIL = os.getenv('SENDER_EMAIL')
         RECEIVER_EMAIL = msg.from_
         message = MIMEMultipart()
         message['From'] = SENDER_EMAIL
         message['To'] = RECEIVER_EMAIL
         message['Subject'] = msg.text
-        route_one = select_chain.invoke(msg.text)
-        chain_one = route_to_chain(route_one)
-        if chain_one == "No":
-            print("Not a question.")
-        else:
-            print("Is a question.")
-            route_two = answer_chain.invoke(msg.text)
-            chain_two = route_to_chain_two(route_two['answer'])
-            if chain_two == "No":
-                print("Not answerable with context.")
+        print(msg.flags)
+        print(msg.text)
+        if '\\Recent' in msg.flags:
+            route_one = select_chain.invoke(msg.text)
+            chain_one = route_to_chain(route_one)
+            if chain_one == "No":
+                print("Not a question.")
             else:
-                print("Answerable with context.")
-                BODY = str(question_chain.invoke(msg.text)['answer'])
-                message.attach(MIMEText(BODY, 'plain'))
-                # Send the email
-                server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
+                print("Is a question.")
+                route_two = answer_chain.invoke(msg.text)
+                chain_two = route_to_chain_two(route_two['answer'])
+                if chain_two == "No":
+                    print("Not answerable with context.")
+                else:
+                    print("Answerable with context.")
+                    BODY = str(question_chain.invoke(msg.text)['answer'])
+                    message.attach(MIMEText(BODY, 'plain'))
+                    # Send the email
+                    server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
+        else:
+            print("No new messages.")
 
 # TESTING
 
@@ -206,3 +234,4 @@ with MailBox('imap.gmail.com').login(os.getenv("EMAIL"), os.getenv("PASS"), 'INB
 #   print(line)
 #   print(rag_chain_with_source.invoke(line))
 #   print("________")
+
