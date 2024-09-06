@@ -189,11 +189,19 @@ server = smtplib.SMTP(smtp_server, port)
 server.starttls()
 
 # MAIL - Credit to stackoverflow user https://stackoverflow.com/questions/5632713/getting-n-most-recent-emails-using-imap-and-python
-
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
 context.set_ciphers('DEFAULT@SECLEVEL=1')
 with MailBox('rci.rutgers.edu', ssl_context=context).login(os.getenv("EMAIL"), os.getenv("PASS"), 'INBOX') as mailbox:
-    for msg in mailbox.fetch(limit=1, reverse=True):
+    for f in mailbox.folder.list(''):
+        print(f)
+    print("END")
+    if not mailbox.folder.exists('INBOX.answered'):
+        mailbox.folder.create('INBOX.answered')
+    if not mailbox.folder.exists('INBOX.irrelevent'):
+        mailbox.folder.create('INBOX.irrelevent')
+    if not mailbox.folder.exists('INBOX.unanswerable'):
+        mailbox.folder.create('INBOX.unanswerable')
+    for msg in mailbox.fetch():
         SENDER_EMAIL = os.getenv('SENDER_EMAIL')
         RECEIVER_EMAIL = msg.from_
         message = MIMEMultipart()
@@ -202,25 +210,30 @@ with MailBox('rci.rutgers.edu', ssl_context=context).login(os.getenv("EMAIL"), o
         message['Subject'] = msg.text
         print(msg.flags)
         print(msg.text)
-        if '\\Recent' in msg.flags:
-            route_one = select_chain.invoke(msg.text)
-            chain_one = route_to_chain(route_one)
-            if chain_one == "No":
-                print("Not a question.")
-            else:
-                print("Is a question.")
-                route_two = answer_chain.invoke(msg.text)
-                chain_two = route_to_chain_two(route_two['answer'])
-                if chain_two == "No":
-                    print("Not answerable with context.")
-                else:
-                    print("Answerable with context.")
-                    BODY = str(question_chain.invoke(msg.text)['answer'])
-                    message.attach(MIMEText(BODY, 'plain'))
-                    # Send the email
-                    server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
+        route_one = select_chain.invoke(msg.text)
+        chain_one = route_to_chain(route_one)
+        if chain_one == "No":
+            print("Not a question.")
+            mailbox.move(msg.uid, 'INBOX.irrelevent')
         else:
-            print("No new messages.")
+            print("Is a question.")
+            route_two = answer_chain.invoke(msg.text)
+            chain_two = route_to_chain_two(route_two['answer'])
+            if chain_two == "No":
+                print("Not answerable with context.")
+                mailbox.move(msg.uid, 'INBOX.unanswerable')
+            else:
+                print("Answerable with context.")
+                BODY = str(question_chain.invoke(msg.text)['answer'])
+                message.attach(MIMEText(BODY, 'plain'))
+                # Send the email
+                server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
+                mailbox.move(msg.uid, 'INBOX.answered')
+        # if '\\Recent' in msg.flags:
+            
+        # else:
+        #     print("No new messages.")
+        #     break
 
 # TESTING
 
@@ -234,4 +247,3 @@ with MailBox('rci.rutgers.edu', ssl_context=context).login(os.getenv("EMAIL"), o
 #   print(line)
 #   print(rag_chain_with_source.invoke(line))
 #   print("________")
-
