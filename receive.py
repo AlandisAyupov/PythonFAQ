@@ -1,14 +1,17 @@
 import imaplib
 import email
 import os
+import ssl
 from dotenv import load_dotenv
 
 load_dotenv() 
 
 # Set up the IMAP connection
-mail = imaplib.IMAP4_SSL('imap.gmail.com')
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+context.set_ciphers('DEFAULT@SECLEVEL=1')
+mail = imaplib.IMAP4_SSL('rci.rutgers.edu', ssl_context=context)
 mail.login(os.getenv("EMAIL"), os.getenv("PASS"))
-mail.select('inbox')
+mail.select('INBOX')
 
 # Search for all email messages in the inbox
 status, data = mail.search(None, 'ALL')
@@ -26,5 +29,3 @@ for num in data[0].split():
 # Close the connection
 mail.close()
 mail.logout()
-# Close the connection to the SMTP server
-server.quit()

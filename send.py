@@ -1,23 +1,21 @@
 import smtplib
-import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import os
 from dotenv import load_dotenv
 
 load_dotenv() 
 
-
 # Connect to the SMTP server
-smtp_server = 'smtp.gmail.com'
-port = 587
+smtp_server = 'mx.farside.rutgers.edu'
+port = 25
 server = smtplib.SMTP(smtp_server, port)
 server.starttls()
 
 # Login to the server
-server.login(os.getenv("EMAIL"), os.getenv("PASS"))
 
 # Create the email message
-sender_email = os.getenv("EMAIL")
+sender_email = os.getenv("SENDER_EMAIL")
 receiver_email = 'steamuservni@gmail.com'
 message = MIMEMultipart()
 message['From'] = sender_email
