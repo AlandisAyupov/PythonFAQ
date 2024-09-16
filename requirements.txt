@@ -1,0 +1,14 @@
+langchain
+imap_tools
+langchain_cohere 
+langchain_google_genai 
+chromadb 
+langchainhub 
+langchain_community 
+huggingface_hub 
+langchain_openai 
+lancedb 
+openai 
+tiktoken 
+rank_bm25 
+pypdf
