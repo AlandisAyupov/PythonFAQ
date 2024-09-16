@@ -1,11 +1,6 @@
 # IMPORTS
 
 import os
-import time
-import ssl
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import pandas as pd
 import lancedb
 from langchain_community.vectorstores import LanceDB
@@ -18,7 +13,6 @@ from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import OpenAIEmbeddings
 from langchain.retrievers import EnsembleRetriever
-from imap_tools import MailBox
 from dotenv import load_dotenv
 
 load_dotenv() 
@@ -131,27 +125,27 @@ llm = ChatGoogleGenerativeAI(model="gemini-pro")
 
 # PROMPT TEMPLATES
 
-TEMPLATE = """
-  Given the input below, return a list of questions that are being asked. If there are no questions being asked, classify it as 'no questions'.
+# TEMPLATE = """
+#   Given the input below, return a list of questions that are being asked. If there are no questions being asked, classify it as 'no questions'.
 
-  INPUT:
-  {query}
+#   INPUT:
+#   {query}
 
-  Classification:
-  """
+#   Classification:
+#   """
 
-TEMPLATE_TWO = """
-  Given the input below, return a list of questions that are answerable with the context provided. If there are not questions
-  that can be answered with the given context, classify it as 'not answerable with context'.
+# TEMPLATE_TWO = """
+#   Given the input below, return a list of questions that are answerable with the context provided. If there are not questions
+#   that can be answered with the given context, classify it as 'not answerable with context'.
 
-  INPUT:
-  {query}
+#   INPUT:
+#   {query}
 
-  CONTEXT:
-  {context}
+#   CONTEXT:
+#   {context}
 
-  Classification:
-  """
+#   Classification:
+#   """
 
 TEMPLATE_THREE = """
   Respond with the questions that are being asked in the input, and answer them with the given context
@@ -167,8 +161,8 @@ TEMPLATE_THREE = """
 
 # PROMPTS
 
-prompt_one = PromptTemplate.from_template(TEMPLATE)
-prompt_two = PromptTemplate(input_variables=["query", "context"], template=TEMPLATE_TWO)
+# prompt_one = PromptTemplate.from_template(TEMPLATE)
+# prompt_two = PromptTemplate(input_variables=["query", "context"], template=TEMPLATE_TWO)
 prompt_three = PromptTemplate(input_variables=["query", "context"], template=TEMPLATE_THREE)
 
 def format_docs(documents):
@@ -177,17 +171,17 @@ def format_docs(documents):
 
 # CHAINS
 
-select_chain = (
-    prompt_one
-    | llm
-    | StrOutputParser()
-)
-answer_chain_from_docs = (
-    RunnablePassthrough.assign(context=(lambda x: format_docs(x["context"])))
-    | prompt_two
-    | llm
-    | StrOutputParser() 
-)
+# select_chain = (
+#     prompt_one
+#     | llm
+#     | StrOutputParser()
+# )
+# answer_chain_from_docs = (
+#     RunnablePassthrough.assign(context=(lambda x: format_docs(x["context"])))
+#     | prompt_two
+#     | llm
+#     | StrOutputParser() 
+# )
 rag_chain_from_docs = (
     RunnablePassthrough.assign(context=(lambda x: format_docs(x["context"])))
     | prompt_three
@@ -195,59 +189,24 @@ rag_chain_from_docs = (
     | StrOutputParser()
 )
 
-answer_chain = RunnableParallel(
-    {"context": retriever, "query": RunnablePassthrough()}
-).assign(answer=answer_chain_from_docs)
+# answer_chain = RunnableParallel(
+#     {"context": retriever, "query": RunnablePassthrough()}
+# ).assign(answer=answer_chain_from_docs)
 
 question_chain = RunnableParallel(
     {"context": retriever, "query": RunnablePassthrough()}
 ).assign(answer=rag_chain_from_docs)
 
-# CONNECT
-
-SMTP_SERVER = 'mx.farside.rutgers.edu'
-server = smtplib.SMTP(SMTP_SERVER, PORT)
-server.starttls()
-
-# MAIL - Credit to stackoverflow user https://stackoverflow.com/questions/5632713/getting-n-most-recent-emails-using-imap-and-python
-
-context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-context.set_ciphers('DEFAULT@SECLEVEL=1')
-while True:
-    with MailBox('rci.rutgers.edu', ssl_context=context).login(os.getenv("EMAIL"), os.getenv("PASS"), 'INBOX') as mailbox:
-        if not mailbox.folder.exists('INBOX.answered'):
-            mailbox.folder.create('INBOX.answered')
-        if not mailbox.folder.exists('INBOX.irrelevent'):
-            mailbox.folder.create('INBOX.irrelevent')
-        if not mailbox.folder.exists('INBOX.unanswerable'):
-            mailbox.folder.create('INBOX.unanswerable')
-        for msg in mailbox.fetch():
-            SENDER_EMAIL = os.getenv('SENDER_EMAIL')
-            RECEIVER_EMAIL = msg.from_
-            message = MIMEMultipart()
-            message['From'] = SENDER_EMAIL
-            message['To'] = RECEIVER_EMAIL
-            message['Subject'] = msg.text
-            print(msg.flags)
-            print(msg.text)
-            route_one = select_chain.invoke(msg.text)
-            chain_one = route_to_chain(route_one)
-            if chain_one == "No":
-                print("Not a question.")
-                mailbox.move(msg.uid, 'INBOX.irrelevent')
-            else:
-                print("Is a question.")
-                route_two = answer_chain.invoke(msg.text)
-                chain_two = route_to_chain_two(route_two['answer'])
-                if chain_two == "No":
-                    print("Not answerable with context.")
-                    mailbox.move(msg.uid, 'INBOX.unanswerable')
-                else:
-                    print("Answerable with context.")
-                    BODY = str(question_chain.invoke(msg.text)['answer'])
-                    message.attach(MIMEText(BODY, 'plain'))
-                    # Send the email
-                    server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
-                    mailbox.move(msg.uid, 'INBOX.answered')
-    time.sleep(INTERVAL)
-    
+with open("/content/questions.txt", "r") as pFile:
+    pLines = [
+        # strip() - Removes leading/trailing whitespace.
+        line.strip()
+            # readlines() - Reads all the lines of a file an returns them as a list.
+            for line in pFile.readlines()]
+cnt = 1
+for line in pLines:
+  print(cnt)
+  print(line)
+  print(question_chain.invoke(line)['answer'])
+  print(" ")
+  cnt += 1
