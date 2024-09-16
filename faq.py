@@ -31,7 +31,9 @@ CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 WEIGHT = 0.2
 PORT = 25
-INTERVAL = 300
+INTERVAL = 5
+
+print("Program start.")
 
 def route_to_chain(route_name):
     if "no questions" != route_name.lower():
@@ -46,7 +48,6 @@ def route_to_chain_two(route_name):
 # API KEYS
     
 os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_KEY")
-os.environ["COHERE_API_KEY"] = os.getenv("COHERE_KEY")
 os.environ["OPENAI_API_KEY"] = os.getenv("OPEN_AI_KEY")
 
 # LOAD DATA
@@ -70,7 +71,7 @@ bm25_retriever.k = K_FACTOR
 # SETTING UP HYBRID SEARCH
 
 ALL_TEXT = " ".join([doc.page_content for doc in all_splits])
-db = lancedb.connect("/tmp/lancedb")
+db = lancedb.connect("/tmp/lancedb"+str(os.getuid()))
 table = db.create_table(
     "pandas_docs",
     data=[
