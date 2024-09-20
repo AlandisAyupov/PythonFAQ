@@ -1,7 +1,13 @@
 # IMPORTS
 
 import os
+<<<<<<< HEAD
 import time
+=======
+import imaplib
+import time
+import os
+>>>>>>> refs/remotes/origin/main
 import ssl
 import smtplib
 from email.mime.text import MIMEText
