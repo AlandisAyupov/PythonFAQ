@@ -43,6 +43,55 @@ def route_to_chain_two(route_name):
         return question_chain
     return "No"
 
+def create_DB():
+    table = db.create_table(
+        "pandas_docs",
+        data=[
+            {
+                "vector": embedding.embed_query("MSCS"),
+                "text": "MSCS",
+                "id": "1",
+            },
+            {
+                "vector": embedding.embed_query("GRE"),
+                "text": "GRE",
+                "id": "2",
+            },
+            {
+                "vector": embedding.embed_query("Application"),
+                "text": "Application",
+                "id": "3",
+            },
+            {
+                "vector": embedding.embed_query("Admission"),
+                "text": "Admission",
+                "id": "4",
+            },
+            {
+                "vector": embedding.embed_query("Computer Science"),
+                "text": "Computer Science",
+                "id": "5",
+            },
+            {
+                "vector": embedding.embed_query("Course"),
+                "text": "Course",
+                "id": "6",
+            },
+            {
+                "vector": embedding.embed_query("Graduation"),
+                "text": "Graduation",
+                "id": "7",
+            },
+            {
+                "vector": embedding.embed_query("Rutgers"),
+                "text": "Rutgers",
+                "id": "8",
+            }
+        ],
+        mode="overwrite",
+    )
+
+
 # API KEYS
     
 os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_KEY")
@@ -74,48 +123,9 @@ ALL_TEXT = " ".join([doc.page_content for doc in all_splits])
 
 # CREATE LANCEDB VECTOR STORE FOR DENSE SEMANTIC SEARCH/RETRIEVAL
 
+print("lancedb.")
 db = lancedb.connect("/tmp/lancedb"+str(os.getuid()))
-table = db.create_table(
-    "pandas_docs",
-    data=[
-        {
-            "vector": embedding.embed_query("MSCS"),
-            "text": "MSCS",
-            "id": "1",
-        },
-        {
-            "vector": embedding.embed_query("GRE"),
-            "text": "GRE",
-            "id": "2",
-        },
-        {
-            "vector": embedding.embed_query("Application"),
-            "text": "Application",
-            "id": "3",
-        },
-        {
-            "vector": embedding.embed_query("Admission"),
-            "text": "Admission",
-            "id": "4",
-        },
-        {
-            "vector": embedding.embed_query("Computer Science"),
-            "text": "Computer Science",
-            "id": "5",
-        },
-        {
-            "vector": embedding.embed_query("Course"),
-            "text": "Course",
-            "id": "6",
-        },
-        {
-            "vector": embedding.embed_query("Graduation"),
-            "text": "Graduation",
-            "id": "7",
-        }
-    ],
-    mode="overwrite",
-)
+# create_DB()
 docsearch = LanceDB.from_texts(ALL_TEXT, embedding, connection=db)
 retriever_lancedb = docsearch.as_retriever(search_kwargs={"k": K_FACTOR})
 

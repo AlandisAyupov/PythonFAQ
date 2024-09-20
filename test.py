@@ -69,47 +69,52 @@ ALL_TEXT = " ".join([doc.page_content for doc in all_splits])
 # CREATE LANCEDB VECTOR STORE FOR DENSE SEMANTIC SEARCH/RETRIEVAL
 
 db = lancedb.connect("/tmp/lancedb"+str(os.getuid()))
-table = db.create_table(
-    "pandas_docs",
-    data=[
-        {
-            "vector": embedding.embed_query("MSCS"),
-            "text": "MSCS",
-            "id": "1",
-        },
-        {
-            "vector": embedding.embed_query("GRE"),
-            "text": "GRE",
-            "id": "2",
-        },
-        {
-            "vector": embedding.embed_query("Application"),
-            "text": "Application",
-            "id": "3",
-        },
-        {
-            "vector": embedding.embed_query("Admission"),
-            "text": "Admission",
-            "id": "4",
-        },
-        {
-            "vector": embedding.embed_query("Computer Science"),
-            "text": "Computer Science",
-            "id": "5",
-        },
-        {
-            "vector": embedding.embed_query("Course"),
-            "text": "Course",
-            "id": "6",
-        },
-        {
-            "vector": embedding.embed_query("Graduation"),
-            "text": "Graduation",
-            "id": "7",
-        }
-    ],
-    mode="overwrite",
-)
+# table = db.create_table(
+#     "pandas_docs",
+#     data=[
+#         {
+#             "vector": embedding.embed_query("MSCS"),
+#             "text": "MSCS",
+#             "id": "1",
+#         },
+#         {
+#             "vector": embedding.embed_query("GRE"),
+#             "text": "GRE",
+#             "id": "2",
+#         },
+#         {
+#             "vector": embedding.embed_query("Application"),
+#             "text": "Application",
+#             "id": "3",
+#         },
+#         {
+#             "vector": embedding.embed_query("Admission"),
+#             "text": "Admission",
+#             "id": "4",
+#         },
+#         {
+#             "vector": embedding.embed_query("Computer Science"),
+#             "text": "Computer Science",
+#             "id": "5",
+#         },
+#         {
+#             "vector": embedding.embed_query("Course"),
+#             "text": "Course",
+#             "id": "6",
+#         },
+#         {
+#             "vector": embedding.embed_query("Graduation"),
+#             "text": "Graduation",
+#             "id": "7",
+#         },
+#         {
+#             "vector": embedding.embed_query("Rutgers"),
+#             "text": "Rutgers",
+#             "id": "8",
+#         }
+#     ],
+#     mode="overwrite",
+# )
 docsearch = LanceDB.from_texts(ALL_TEXT, embedding, connection=db)
 retriever_lancedb = docsearch.as_retriever(search_kwargs={"k": K_FACTOR})
 
@@ -148,7 +153,7 @@ llm = ChatGoogleGenerativeAI(model="gemini-pro")
 #   """
 
 TEMPLATE_THREE = """
-  Respond with the questions that are being asked in the input, and answer them with the given context
+  Answer the questions in the input with the given context.
 
   INPUT:
   {query}
@@ -197,7 +202,7 @@ question_chain = RunnableParallel(
     {"context": retriever, "query": RunnablePassthrough()}
 ).assign(answer=rag_chain_from_docs)
 
-with open("/content/questions.txt", "r") as pFile:
+with open("./content/question.txt", "r") as pFile:
     pLines = [
         # strip() - Removes leading/trailing whitespace.
         line.strip()
