@@ -1,13 +1,8 @@
 # IMPORTS
 
 import os
-<<<<<<< HEAD
+import syslog
 import time
-=======
-import imaplib
-import time
-import os
->>>>>>> refs/remotes/origin/main
 import ssl
 import smtplib
 from email.mime.text import MIMEText
@@ -37,7 +32,7 @@ WEIGHT = 0.2
 PORT = 25
 INTERVAL = 5
 
-print("Program start.")
+syslog.syslog("Program start.")
 
 def route_to_chain(route_name):
     if "no questions" != route_name.lower():
@@ -129,7 +124,7 @@ ALL_TEXT = " ".join([doc.page_content for doc in all_splits])
 
 # CREATE LANCEDB VECTOR STORE FOR DENSE SEMANTIC SEARCH/RETRIEVAL
 
-print("lancedb.")
+syslog.syslog("LanceDB.")
 db = lancedb.connect("/tmp/lancedb"+str(os.getuid()))
 # create_DB()
 docsearch = LanceDB.from_texts(ALL_TEXT, embedding, connection=db)
@@ -157,7 +152,7 @@ TEMPLATE = """
   """
 
 TEMPLATE_TWO = """
-  Given the input below, return a list of questions that are answerable with the context provided. If there are not questions
+  Given the input below, return a list of questions that are answerable with the context provided. If there are no questions
   that can be answered with the given context, classify it as 'not answerable with context'.
 
   INPUT:
@@ -170,7 +165,8 @@ TEMPLATE_TWO = """
   """
 
 TEMPLATE_THREE = """
-  Respond with the questions that are being asked in the input, and answer them with the given context
+  Given the input below, answer the questions that are being asked with the provided context. If there are no questions that can be 
+  answered with the given context, classify it as 'no answer'.
 
   INPUT:
   {query}
@@ -249,21 +245,30 @@ while True:
             route_one = select_chain.invoke(msg.text)
             chain_one = route_to_chain(route_one)
             if chain_one == "No":
-                print("Not a question.")
+                syslog.syslog("Not a question.")
                 mailbox.move(msg.uid, 'INBOX.irrelevent')
             else:
-                print("Is a question.")
+                syslog.syslog("Is a question.")
                 route_two = answer_chain.invoke(msg.text)
                 chain_two = route_to_chain_two(route_two['answer'])
                 if chain_two == "No":
-                    print("Not answerable with context.")
+                    syslog.syslog("Not answerable with context.")
                     mailbox.move(msg.uid, 'INBOX.unanswerable')
                 else:
-                    print("Answerable with context.")
-                    BODY = str(question_chain.invoke(msg.text)['answer'])
+                    syslog.syslog("Answerable with context.")
+                    final = question_chain.invoke(msg.text)['answer']
+                    BODY = str(final)
                     message.attach(MIMEText(BODY, 'plain'))
-                    # Send the email
-                    server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
-                    mailbox.move(msg.uid, 'INBOX.answered')
+                    error = ""
+                    if final.lower() != "no answer":
+                        try:
+                            server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
+                        except Exception as err:
+                            syslog.syslog(f"{err=}, {type(err)=}")
+                        mailbox.move(msg.uid, 'INBOX.answered')
+                    else:
+                        syslog.syslog("Not answerable with context.")
+                        mailbox.move(msg.uid, 'INBOX.unanswerable')
+    syslog.syslog("Finished cycle")
     time.sleep(INTERVAL)
     
