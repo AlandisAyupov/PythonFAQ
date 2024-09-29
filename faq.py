@@ -226,49 +226,56 @@ server.starttls()
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
 context.set_ciphers('DEFAULT@SECLEVEL=1')
 while True:
-    with MailBox('rci.rutgers.edu', ssl_context=context).login(os.getenv("EMAIL"), os.getenv("PASS"), 'INBOX') as mailbox:
-        if not mailbox.folder.exists('INBOX.answered'):
-            mailbox.folder.create('INBOX.answered')
-        if not mailbox.folder.exists('INBOX.irrelevent'):
-            mailbox.folder.create('INBOX.irrelevent')
-        if not mailbox.folder.exists('INBOX.unanswerable'):
-            mailbox.folder.create('INBOX.unanswerable')
-        for msg in mailbox.fetch():
-            SENDER_EMAIL = os.getenv('SENDER_EMAIL')
-            RECEIVER_EMAIL = msg.from_
-            message = MIMEMultipart()
-            message['From'] = SENDER_EMAIL
-            message['To'] = RECEIVER_EMAIL
-            message['Subject'] = msg.text
-            print(msg.flags)
-            print(msg.text)
-            route_one = select_chain.invoke(msg.text)
-            chain_one = route_to_chain(route_one)
-            if chain_one == "No":
-                syslog.syslog("Not a question.")
-                mailbox.move(msg.uid, 'INBOX.irrelevent')
-            else:
-                syslog.syslog("Is a question.")
-                route_two = answer_chain.invoke(msg.text)
-                chain_two = route_to_chain_two(route_two['answer'])
-                if chain_two == "No":
-                    syslog.syslog("Not answerable with context.")
-                    mailbox.move(msg.uid, 'INBOX.unanswerable')
+    try:
+        with MailBox('rci.rutgers.edu', ssl_context=context).login(os.getenv("EMAIL"), os.getenv("PASS"), 'INBOX') as mailbox:
+            if not mailbox.folder.exists('INBOX.answered'):
+                mailbox.folder.create('INBOX.answered')
+            if not mailbox.folder.exists('INBOX.irrelevent'):
+                mailbox.folder.create('INBOX.irrelevent')
+            if not mailbox.folder.exists('INBOX.unanswerable'):
+                mailbox.folder.create('INBOX.unanswerable')
+            for msg in mailbox.fetch():
+                SENDER_EMAIL = os.getenv('SENDER_EMAIL')
+                RECEIVER_EMAIL = msg.from_
+                message = MIMEMultipart()
+                message['From'] = SENDER_EMAIL
+                message['To'] = RECEIVER_EMAIL
+                message['Subject'] = msg.text
+                syslog.syslog(msg.text)
+                route_one = select_chain.invoke(msg.text)
+                chain_one = route_to_chain(route_one)
+                if chain_one == "No":
+                    syslog.syslog("Not a question.")
+                    mailbox.move(msg.uid, 'INBOX.irrelevent')
                 else:
-                    syslog.syslog("Answerable with context.")
-                    final = question_chain.invoke(msg.text)['answer']
-                    BODY = str(final)
-                    message.attach(MIMEText(BODY, 'plain'))
-                    error = ""
-                    if final.lower() != "no answer":
-                        try:
-                            server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
-                        except Exception as err:
-                            syslog.syslog(f"{err=}, {type(err)=}")
-                        mailbox.move(msg.uid, 'INBOX.answered')
-                    else:
+                    syslog.syslog("Is a question.")
+                    route_two = answer_chain.invoke(msg.text)
+                    chain_two = route_to_chain_two(route_two['answer'])
+                    if chain_two == "No":
                         syslog.syslog("Not answerable with context.")
                         mailbox.move(msg.uid, 'INBOX.unanswerable')
-    syslog.syslog("Finished cycle")
+                    else:
+                        syslog.syslog("Answerable with context.")
+                        final = question_chain.invoke(msg.text)['answer']
+                        BODY = str(final)
+                        message.attach(MIMEText(BODY, 'plain'))
+                        syslog.syslog(message.as_string())
+                        try:
+                            server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
+                            mailbox.move(msg.uid, 'INBOX.answered')
+                        except Exception as err:
+                            syslog.syslog(f"{err=}, {type(err)=}")
+                        # if final.lower() != "no answer":
+                        #     try:
+                        #         server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
+                        #     except Exception as err:
+                        #         syslog.syslog(f"{err=}, {type(err)=}")
+                        #     mailbox.move(msg.uid, 'INBOX.answered')
+                        # else:
+                        #     syslog.syslog("Not answerable with context.")
+                        #     mailbox.move(msg.uid, 'INBOX.unanswerable')
+        syslog.syslog("Finished cycle")
+    except:
+        syslog.syslog("Connection error.")
     time.sleep(INTERVAL)
     
