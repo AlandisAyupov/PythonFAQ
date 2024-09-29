@@ -92,6 +92,13 @@ def create_DB():
         mode="overwrite",
     )
 
+def create_folders(mailbox):
+    if not mailbox.folder.exists('INBOX.answered'):
+        mailbox.folder.create('INBOX.answered')
+    if not mailbox.folder.exists('INBOX.irrelevent'):
+        mailbox.folder.create('INBOX.irrelevent')
+    if not mailbox.folder.exists('INBOX.unanswerable'):
+        mailbox.folder.create('INBOX.unanswerable')
 
 # API KEYS
     
@@ -228,12 +235,7 @@ context.set_ciphers('DEFAULT@SECLEVEL=1')
 while True:
     try:
         with MailBox('rci.rutgers.edu', ssl_context=context).login(os.getenv("EMAIL"), os.getenv("PASS"), 'INBOX') as mailbox:
-            if not mailbox.folder.exists('INBOX.answered'):
-                mailbox.folder.create('INBOX.answered')
-            if not mailbox.folder.exists('INBOX.irrelevent'):
-                mailbox.folder.create('INBOX.irrelevent')
-            if not mailbox.folder.exists('INBOX.unanswerable'):
-                mailbox.folder.create('INBOX.unanswerable')
+            create_folders(mailbox)
             for msg in mailbox.fetch():
                 SENDER_EMAIL = os.getenv('SENDER_EMAIL')
                 RECEIVER_EMAIL = msg.from_
