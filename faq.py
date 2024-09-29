@@ -30,7 +30,7 @@ CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 WEIGHT = 0.2
 PORT = 25
-INTERVAL = 5
+INTERVAL = 20
 
 syslog.syslog("Program start.")
 
@@ -237,11 +237,6 @@ while True:
             for msg in mailbox.fetch():
                 SENDER_EMAIL = os.getenv('SENDER_EMAIL')
                 RECEIVER_EMAIL = msg.from_
-                message = MIMEMultipart()
-                message['From'] = SENDER_EMAIL
-                message['To'] = RECEIVER_EMAIL
-                message['Subject'] = msg.text
-                syslog.syslog(msg.text)
                 route_one = select_chain.invoke(msg.text)
                 chain_one = route_to_chain(route_one)
                 if chain_one == "No":
@@ -256,26 +251,25 @@ while True:
                         mailbox.move(msg.uid, 'INBOX.unanswerable')
                     else:
                         syslog.syslog("Answerable with context.")
-                        final = question_chain.invoke(msg.text)['answer']
-                        BODY = str(final)
-                        message.attach(MIMEText(BODY, 'plain'))
+                        final = question_chain.invoke(msg.text)
+                        BODY = str(final['answer'])+ " " + str(final['context'])
+                        message = MIMEText(BODY, "plain")
+                        message['From'] = SENDER_EMAIL
+                        message['To'] = RECEIVER_EMAIL
+                        message['Subject'] = msg.text
+                        syslog.syslog(msg.text)
                         syslog.syslog(message.as_string())
-                        try:
-                            server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
-                            mailbox.move(msg.uid, 'INBOX.answered')
-                        except Exception as err:
-                            syslog.syslog(f"{err=}, {type(err)=}")
-                        # if final.lower() != "no answer":
-                        #     try:
-                        #         server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
-                        #     except Exception as err:
-                        #         syslog.syslog(f"{err=}, {type(err)=}")
-                        #     mailbox.move(msg.uid, 'INBOX.answered')
-                        # else:
-                        #     syslog.syslog("Not answerable with context.")
-                        #     mailbox.move(msg.uid, 'INBOX.unanswerable')
+                        if final['answer'].lower() != "no answer":
+                            try:
+                                server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
+                                mailbox.move(msg.uid, 'INBOX.answered')
+                            except Exception as err:
+                                syslog.syslog(f"{err=}, {type(err)=}")
+                        else:
+                            syslog.syslog("Not answerable with context.")
+                            mailbox.move(msg.uid, 'INBOX.unanswerable')
         syslog.syslog("Finished cycle")
-    except:
-        syslog.syslog("Connection error.")
+    except Exception as err:
+        syslog.syslog(f"{err=}, {type(err)=}")
     time.sleep(INTERVAL)
     
