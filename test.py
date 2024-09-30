@@ -215,6 +215,7 @@ for line in pLines:
   if line.strip() != "":
     print(cnt)
     print(line)
-    print(question_chain.invoke(line)['answer'])
+    final = question_chain.invoke(line)
+    print(str(final['answer']) + "\n" + str(final['context'][1]))
     print(" ")
     cnt += 1

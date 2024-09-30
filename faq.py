@@ -5,8 +5,8 @@ import syslog
 import time
 import ssl
 import smtplib
+import uuid
 from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 import pandas as pd
 import lancedb
 from langchain_community.vectorstores import LanceDB
@@ -254,17 +254,20 @@ while True:
                     else:
                         syslog.syslog("Answerable with context.")
                         final = question_chain.invoke(msg.text)
-                        BODY = str(final['answer'])+ " " + str(final['context'])
+                        print(final)
+                        BODY = str(str(final['answer']) + "\n" + str(final['context'][1]))
                         message = MIMEText(BODY, "plain")
                         message['From'] = SENDER_EMAIL
                         message['To'] = RECEIVER_EMAIL
                         message['Subject'] = msg.text
+                        message['Message-ID'] = f'<{uuid.uuid4()}@cs.rutgers.edu>'
                         syslog.syslog(msg.text)
                         syslog.syslog(message.as_string())
                         if final['answer'].lower() != "no answer":
                             try:
                                 server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
                                 mailbox.move(msg.uid, 'INBOX.answered')
+                                syslog.syslog("Answered.")
                             except Exception as err:
                                 syslog.syslog(f"{err=}, {type(err)=}")
                         else:

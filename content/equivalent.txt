@@ -18,3 +18,44 @@ Does early application improve my chances of acceptance?
 Is there an advantage to applying early for admission?
 Will applying early make me a more competitive applicant?
 Does early application increase my odds of getting into the program?
+
+Do I need to have completed an undergraduate degree in Computer Science to be eligible for this degree?
+Is a Bachelor's degree in Computer Science a prerequisite for this program?
+Do I need a Computer Science background to apply for this degree?
+Is a Computer Science undergraduate degree required for admission?
+Is a degree in Computer Science a necessary qualification for this program?
+Am I eligible for this degree without a Computer Science undergraduate degree?
+
+Do I need to submit official test scores and transcripts?
+Are official test scores and transcripts required for application?
+Do I need to submit verified copies of my test scores and transcripts?
+Will unofficial copies of my test scores and transcripts be accepted?
+Are official test scores and transcripts mandatory for admission?
+Is it necessary to provide official test scores and transcripts as part of the application process?
+
+Do you have rolling admissions?
+Is your admissions process ongoing?
+Do you accept applications throughout the year?
+Is there a specific deadline for applications?
+Do you have multiple application deadlines?
+Is your admissions process continuous?
+
+How can I defer my admission to another semester?
+What is the process for deferring my admission to a different semester?
+Can I postpone my enrollment to a future semester?
+How do I request a deferral of my admission?
+Is it possible to delay my start date to another semester?
+What are the steps involved in deferring my admission?
+
+How do I apply?
+What is the application process for this program?
+How can I submit my application?
+What are the steps involved in applying to this program?
+Where can I find the application form?
+
+How do I register?
+What is the registration process for this program?
+How can I enroll in this program?
+What are the steps involved in registering for this program?
+Where can I find the registration form?
+What is the registration deadline?
