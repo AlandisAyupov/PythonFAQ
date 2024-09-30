@@ -202,6 +202,8 @@ question_chain = RunnableParallel(
     {"context": retriever, "query": RunnablePassthrough()}
 ).assign(answer=rag_chain_from_docs)
 
+print("Answering.")
+
 with open("./content/question.txt", "r") as pFile:
     pLines = [
         # strip() - Removes leading/trailing whitespace.
@@ -210,8 +212,9 @@ with open("./content/question.txt", "r") as pFile:
             for line in pFile.readlines()]
 cnt = 1
 for line in pLines:
-  print(cnt)
-  print(line)
-  print(question_chain.invoke(line)['answer'])
-  print(" ")
-  cnt += 1
+  if line.strip() != "":
+    print(cnt)
+    print(line)
+    print(question_chain.invoke(line)['answer'])
+    print(" ")
+    cnt += 1
