@@ -4,7 +4,6 @@ import os
 import syslog
 import time
 import ssl
-import sys
 import smtplib
 import uuid
 from email.mime.text import MIMEText
@@ -223,61 +222,33 @@ question_chain = RunnableParallel(
     {"context": retriever, "query": RunnablePassthrough()}
 ).assign(answer=rag_chain_from_docs)
 
-# CONNECT
+print("Answering.")
 
-SMTP_SERVER = 'mx.farside.rutgers.edu'
-server = smtplib.SMTP(SMTP_SERVER, PORT)
-server.starttls()
-
-# MAIL - Credit to stackoverflow user https://stackoverflow.com/questions/5632713/getting-n-most-recent-emails-using-imap-and-python
-
-context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-context.set_ciphers('DEFAULT@SECLEVEL=1')
-while True:
-    try:
-        with MailBox('rci.rutgers.edu', ssl_context=context).login(os.getenv("EMAIL"), os.getenv("PASS"), 'INBOX') as mailbox:
-            create_folders(mailbox)
-            for msg in mailbox.fetch():
-                SENDER_EMAIL = os.getenv('SENDER_EMAIL')
-                RECEIVER_EMAIL = msg.from_
-                route_one = select_chain.invoke(msg.text)
-                chain_one = route_to_chain(route_one)
-                print(route_one)
-                if chain_one == "No":
-                    syslog.syslog("Not a question.")
-                    mailbox.move(msg.uid, 'INBOX.irrelevent')
-                else:
-                    syslog.syslog("Is a question.")
-                    route_two = answer_chain.invoke(msg.text)
-                    chain_two = route_to_chain_two(route_two['answer'])
-                    print(route_two)
-                    if chain_two == "No":
-                        syslog.syslog("Not answerable with context.")
-                        mailbox.move(msg.uid, 'INBOX.unanswerable')
-                    else:
-                        syslog.syslog("Answerable with context.")
-                        final = question_chain.invoke(msg.text)
-                        print(final)
-                        BODY = str(str(final['answer']) + "\n" + str(final['context'][1]))
-                        message = MIMEText(BODY, "plain")
-                        message['From'] = SENDER_EMAIL
-                        message['To'] = RECEIVER_EMAIL
-                        message['Message-ID'] = f'<{uuid.uuid4()}@cs.rutgers.edu>'
-                        syslog.syslog(msg.text)
-                        syslog.syslog(message.as_string())
-                        if final['answer'].lower() != "no answer":
-                            try:
-                                server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
-                                mailbox.move(msg.uid, 'INBOX.answered')
-                                syslog.syslog("Answered.")
-                            except Exception as err:
-                                syslog.syslog(f"{err=}, {type(err)=}, {exc_tb.tb_lineno}")
-                        else:
-                            syslog.syslog("Not answerable with context.")
-                            mailbox.move(msg.uid, 'INBOX.unanswerable')
-        syslog.syslog("Finished cycle")
-    except Exception as err:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        syslog.syslog(f"{err=}, {type(err)=}, {exc_tb.tb_lineno}")
-    time.sleep(INTERVAL)
+with open("./content/question.txt", "r") as pFile:
+    pLines = [
+        # strip() - Removes leading/trailing whitespace.
+        line.strip()
+            # readlines() - Reads all the lines of a file an returns them as a list.
+            for line in pFile.readlines()]
+cnt = 1
+for line in pLines:
+  if line.strip() != "":
+    print(cnt)
+    print(line)
+    print("")
+    route_one = select_chain.invoke(line)
+    print("\n" + route_one + "\n")
+    chain_one = route_to_chain(route_one)
+    if chain_one == "No":
+        print("Not a question.")
+    else:
+        arr = route_one.split("\n")
+        for question in arr:
+            if question.strip() != "Questions:" and question.strip() != "":
+                print(question)
+                final = question_chain.invoke(question)
+                print(final['answer'])
+                print("")
+    print("")
+    cnt += 1
     

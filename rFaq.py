@@ -248,17 +248,22 @@ while True:
                     mailbox.move(msg.uid, 'INBOX.irrelevent')
                 else:
                     syslog.syslog("Is a question.")
-                    route_two = answer_chain.invoke(msg.text)
+                    route_two = answer_chain.invoke(route_one)
                     chain_two = route_to_chain_two(route_two['answer'])
-                    print(route_two)
+                    print(route_two['answer'])
                     if chain_two == "No":
                         syslog.syslog("Not answerable with context.")
                         mailbox.move(msg.uid, 'INBOX.unanswerable')
                     else:
                         syslog.syslog("Answerable with context.")
-                        final = question_chain.invoke(msg.text)
-                        print(final)
-                        BODY = str(str(final['answer']) + "\n" + str(final['context'][1]))
+                        email_answer = ""
+                        arr = route_one.split("\n")
+                        for question in arr:
+                            if question.strip() != "Questions:" and question.strip() != "":
+                                print(question)
+                                final = question_chain.invoke(question)
+                                email_answer += str(final['answer']) + "\n"
+                        BODY = str(email_answer)
                         message = MIMEText(BODY, "plain")
                         message['From'] = SENDER_EMAIL
                         message['To'] = RECEIVER_EMAIL
