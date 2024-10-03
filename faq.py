@@ -31,7 +31,7 @@ CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 WEIGHT = 0.2
 PORT = 25
-INTERVAL = 20
+INTERVAL = 5
 
 syslog.syslog("Program start.")
 
@@ -173,7 +173,7 @@ TEMPLATE_TWO = """
   """
 
 TEMPLATE_THREE = """
-  Given the input below, answer the questions that are being asked with the provided context. If there are no questions that can be 
+  Given the input below, answer the questions that are being asked with the provided context as completely as possible. If there are no questions that can be 
   answered with the given context, classify it as 'no answer'.
 
   INPUT:
@@ -258,7 +258,7 @@ while True:
                         syslog.syslog("Answerable with context.")
                         final = question_chain.invoke(msg.text)
                         print(final)
-                        BODY = str(str(final['answer']) + "\n" + str(final['context'][1]))
+                        BODY = str(final['answer']) + "\n\nThis response was written by AI.\n\n" + str(final['context'][1])
                         message = MIMEText(BODY, "plain")
                         message['From'] = SENDER_EMAIL
                         message['To'] = RECEIVER_EMAIL
@@ -271,7 +271,7 @@ while True:
                                 mailbox.move(msg.uid, 'INBOX.answered')
                                 syslog.syslog("Answered.")
                             except Exception as err:
-                                syslog.syslog(f"{err=}, {type(err)=}, {exc_tb.tb_lineno}")
+                                syslog.syslog(f"{err=}, {type(err)=}")
                         else:
                             syslog.syslog("Not answerable with context.")
                             mailbox.move(msg.uid, 'INBOX.unanswerable')

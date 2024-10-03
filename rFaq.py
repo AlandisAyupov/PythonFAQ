@@ -31,7 +31,7 @@ CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 WEIGHT = 0.2
 PORT = 25
-INTERVAL = 20
+INTERVAL = 5
 
 syslog.syslog("Program start.")
 
@@ -173,8 +173,11 @@ TEMPLATE_TWO = """
   """
 
 TEMPLATE_THREE = """
-  Given the input below, answer the questions that are being asked with the provided context. If there are no questions that can be 
+  Given the input below, give answers to the questions that are being asked with the provided context. If there are no questions that can be 
   answered with the given context, classify it as 'no answer'.
+
+  #STYLE 
+  Make sure to give a complete and lengthy response to each question. If there is a link in the context, make sure to always provide it.
 
   INPUT:
   {query}
@@ -242,44 +245,36 @@ while True:
                 RECEIVER_EMAIL = msg.from_
                 route_one = select_chain.invoke(msg.text)
                 chain_one = route_to_chain(route_one)
-                print(route_one)
                 if chain_one == "No":
                     syslog.syslog("Not a question.")
                     mailbox.move(msg.uid, 'INBOX.irrelevent')
                 else:
-                    syslog.syslog("Is a question.")
-                    route_two = answer_chain.invoke(route_one)
-                    chain_two = route_to_chain_two(route_two['answer'])
-                    print(route_two['answer'])
-                    if chain_two == "No":
+                    syslog.syslog("Questions.")
+                    email_answer = ""
+                    arr = route_one.split("\n")
+                    for question in arr:
+                        if question.strip() != "Questions:" and question.strip() != "":
+                            print(question)
+                            final = question_chain.invoke(question)
+                            email_answer += str(final['answer']) + "\n"
+                    BODY = str(email_answer) + "\n\nThis response was written by AI."
+                    message = MIMEText(BODY, "plain")
+                    message['From'] = SENDER_EMAIL
+                    message['To'] = RECEIVER_EMAIL
+                    message['Message-ID'] = f'<{uuid.uuid4()}@cs.rutgers.edu>'
+                    syslog.syslog(msg.text)
+                    syslog.syslog(message.as_string())
+                    if email_answer.strip().lower() != "no answer":
+                        try:
+                            # server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
+                            print(message.as_string())
+                            mailbox.move(msg.uid, 'INBOX.answered')
+                            syslog.syslog("Answered.")
+                        except Exception as err:
+                            syslog.syslog(f"{err=}, {type(err)=}, {exc_tb.tb_lineno}")
+                    else:
                         syslog.syslog("Not answerable with context.")
                         mailbox.move(msg.uid, 'INBOX.unanswerable')
-                    else:
-                        syslog.syslog("Answerable with context.")
-                        email_answer = ""
-                        arr = route_one.split("\n")
-                        for question in arr:
-                            if question.strip() != "Questions:" and question.strip() != "":
-                                print(question)
-                                final = question_chain.invoke(question)
-                                email_answer += str(final['answer']) + "\n"
-                        BODY = str(email_answer)
-                        message = MIMEText(BODY, "plain")
-                        message['From'] = SENDER_EMAIL
-                        message['To'] = RECEIVER_EMAIL
-                        message['Message-ID'] = f'<{uuid.uuid4()}@cs.rutgers.edu>'
-                        syslog.syslog(msg.text)
-                        syslog.syslog(message.as_string())
-                        if final['answer'].lower() != "no answer":
-                            try:
-                                server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
-                                mailbox.move(msg.uid, 'INBOX.answered')
-                                syslog.syslog("Answered.")
-                            except Exception as err:
-                                syslog.syslog(f"{err=}, {type(err)=}, {exc_tb.tb_lineno}")
-                        else:
-                            syslog.syslog("Not answerable with context.")
-                            mailbox.move(msg.uid, 'INBOX.unanswerable')
         syslog.syslog("Finished cycle")
     except Exception as err:
         exc_type, exc_obj, exc_tb = sys.exc_info()
