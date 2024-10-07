@@ -34,14 +34,10 @@ PORT = 25
 INTERVAL = 5
 
 syslog.syslog("Program start.")
+print("Program start.")
 
 def route_to_chain(route_name):
     if "no questions" != route_name.lower():
-        return answer_chain
-    return "No"
-
-def route_to_chain_two(route_name):
-    if "not answerable with context" != route_name.lower():
         return question_chain
     return "No"
 
@@ -133,6 +129,7 @@ ALL_TEXT = " ".join([doc.page_content for doc in all_splits])
 # CREATE LANCEDB VECTOR STORE FOR DENSE SEMANTIC SEARCH/RETRIEVAL
 
 syslog.syslog("LanceDB.")
+print("LanceDB.")
 db = lancedb.connect("/tmp/lancedb"+str(os.getuid()))
 # create_DB()
 docsearch = LanceDB.from_texts(ALL_TEXT, embedding, connection=db)
@@ -160,24 +157,11 @@ TEMPLATE = """
   """
 
 TEMPLATE_TWO = """
-  Given the input below, return a list of questions that are answerable with the context provided. If there are no questions
-  that can be answered with the given context, classify it as 'not answerable with context'.
-
-  INPUT:
-  {query}
-
-  CONTEXT:
-  {context}
-
-  Classification:
-  """
-
-TEMPLATE_THREE = """
   Given the input below, give answers to the questions that are being asked with the provided context. If there are no questions that can be 
-  answered with the given context, classify it as 'no answer'.
-
+  answered with the given context, classify it as 'no answer'. For every response to each question, provide any links you find in the provided context.
+  
   #STYLE 
-  Make sure to give a complete and lengthy response to each question. If there is a link in the context, make sure to always provide it.
+  Make sure to give a complete and lengthy response to each question.
 
   INPUT:
   {query}
@@ -192,7 +176,6 @@ TEMPLATE_THREE = """
 
 prompt_one = PromptTemplate.from_template(TEMPLATE)
 prompt_two = PromptTemplate(input_variables=["query", "context"], template=TEMPLATE_TWO)
-prompt_three = PromptTemplate(input_variables=["query", "context"], template=TEMPLATE_THREE)
 
 def format_docs(documents):
     """Formats documents."""
@@ -205,22 +188,13 @@ select_chain = (
     | llm
     | StrOutputParser()
 )
-answer_chain_from_docs = (
+
+rag_chain_from_docs = (
     RunnablePassthrough.assign(context=(lambda x: format_docs(x["context"])))
     | prompt_two
     | llm
-    | StrOutputParser() 
-)
-rag_chain_from_docs = (
-    RunnablePassthrough.assign(context=(lambda x: format_docs(x["context"])))
-    | prompt_three
-    | llm
     | StrOutputParser()
 )
-
-answer_chain = RunnableParallel(
-    {"context": retriever, "query": RunnablePassthrough()}
-).assign(answer=answer_chain_from_docs)
 
 question_chain = RunnableParallel(
     {"context": retriever, "query": RunnablePassthrough()}
@@ -256,7 +230,7 @@ while True:
                         if question.strip() != "Questions:" and question.strip() != "":
                             print(question)
                             final = question_chain.invoke(question)
-                            email_answer += str(final['answer']) + "\n"
+                            email_answer += "Question: " + question + "\nAnswer: " + str(final['answer']) + "\n"
                     BODY = str(email_answer) + "\n\nThis response was written by AI."
                     message = MIMEText(BODY, "plain")
                     message['From'] = SENDER_EMAIL
@@ -266,7 +240,7 @@ while True:
                     syslog.syslog(message.as_string())
                     if email_answer.strip().lower() != "no answer":
                         try:
-                            # server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
+                            server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
                             print(message.as_string())
                             mailbox.move(msg.uid, 'INBOX.answered')
                             syslog.syslog("Answered.")
