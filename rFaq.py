@@ -158,7 +158,7 @@ TEMPLATE = """
 
 TEMPLATE_TWO = """
   Given the input below, give answers to the questions that are being asked with the provided context. If there are no questions that can be 
-  answered with the given context, classify it as 'no answer'. For every response to each question, provide any links you find in the provided context.
+  answered with the given context, classify it as 'no answer.'. For every response to each question, provide any links you find in the provided context.
   
   #STYLE 
   Make sure to give a complete and lengthy response to each question.
@@ -238,7 +238,7 @@ while True:
                     message['Message-ID'] = f'<{uuid.uuid4()}@cs.rutgers.edu>'
                     syslog.syslog(msg.text)
                     syslog.syslog(message.as_string())
-                    if email_answer.strip().lower() != "no answer":
+                    if email_answer.strip().lower() != "no answer.":
                         try:
                             server.sendmail(SENDER_EMAIL, RECEIVER_EMAIL, message.as_string())
                             print(message.as_string())
