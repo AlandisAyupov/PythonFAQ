@@ -1,0 +1,32 @@
+[
+    {
+        "generated_questions": [
+            "1. Are there any specific scores required by the department for GRE or TOEFL exams?  ",
+            "2. Where can international applicants find the minimal requirements for English proficiency?  ",
+            "3. What role do test scores play in the admission process?  ",
+            "4. Does the department have strict GRE or TOEFL score cutoffs for applications?  ",
+            "5. Who publishes the minimal requirements for English proficiency?  ",
+            "6. Can high test scores improve chances of admission?  ",
+            "7. What components are considered during the admission process by the department?  ",
+            "8. Is having the minimum English proficiency required necessary for international students?  ",
+            "9. Does having a low test score automatically disqualify an applicant?  ",
+            "10. What might outweigh poor test scores in the admission process?"
+        ],
+        "context": "Our department imposes no minimal score requirements, but please do note that the Rutgers Graduate School\n            publishes minimal requirements for English proficiency. See http://gradstudy.rutgers.edu/information/international-students. During the admission process, we look at all the submitted material.\n            Clearly, the better the test scores, the better the chances to get admitted."
+    },
+    {
+        "generated_questions": [
+            "1. Does Rutgers provide funding for MS students?",
+            "2. Can the CS Department offer financial support to MS students?",
+            "3. Are MS students expected to arrange their own finances at Rutgers?",
+            "4. Is there a possibility of receiving funding from individual research groups for MS students?",
+            "5. Can research grants be a source of funding for MS students at Rutgers?",
+            "6. Who can provide advice on contacting faculty members for support opportunities?",
+            "7. Are funding opportunities available on a case-by-case basis for admitted MS students?",
+            "8. Can an academic advisor assist with finding funding opportunities in research groups?",
+            "9. Should MS students contact individual faculty members for financial support considerations?",
+            "10. Are MS students eligible for departmental or university financial aid at Rutgers?"
+        ],
+        "context": "University or Department funding can not be offered to MS students at Rutgers. We expect MS students\n            to make their own financial arrangements. However, individual research groups are sometimes able to provide funding\n            on a case-by-case basis to admitted MS students through their research grants. Your academic advisor can give\n            you advice about contacting individual\n            faculty members about opportunities for support in their research group."
+    }
+]

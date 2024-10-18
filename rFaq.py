@@ -157,8 +157,9 @@ TEMPLATE = """
   """
 
 TEMPLATE_TWO = """
-  Given the input below, give answers to the questions that are being asked with the provided context. If there are no questions that can be 
-  answered with the given context, classify it as 'no answer.'. For every response to each question, provide any links you find in the provided context.
+  Given the input below, generate a list of answers to the questions that are being asked with the provided context. If there are no questions that can be 
+  answered with the given context, classify it as 'no answer.'. For every response to each question, provide any links you find in the provided context. When providing a list of answers
+  do not produce anything else as output, just a list.
   
   #STYLE 
   Make sure to give a complete and lengthy response to each question.
